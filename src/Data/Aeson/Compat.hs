@@ -107,14 +107,7 @@ decodeStrict' = eitherAesonExc . eitherDecodeStrict'
 (.:?) :: (FromJSON a) => Object -> Text -> Parser (Maybe a)
 obj .:? key = case H.lookup key obj of
                 Nothing -> pure Nothing
-                Just v  ->
-#if MIN_VERSION_aeson(0,10,0)
-                  modifyFailure addKeyName $ parseJSON v -- <?> Key key
-  where
-    addKeyName = (("failed to parse field " <> T.unpack key <> ": ") <>)
-#else
-                  parseJSON v
-#endif
+                Just v  -> parseJSON v
 {-# INLINE (.:?) #-}
 
 -- | Like '.:?', but the resulting parser will fail,
@@ -122,14 +115,7 @@ obj .:? key = case H.lookup key obj of
 (.:!) :: (FromJSON a) => Object -> Text -> Parser (Maybe a)
 obj .:! key = case H.lookup key obj of
                 Nothing -> pure Nothing
-                Just v  ->
-#if MIN_VERSION_aeson(0,10,0)
-                  modifyFailure addKeyName $ Just <$> parseJSON v -- <?> Key key
-  where
-    addKeyName = (("failed to parse field " <> T.unpack key <> ": ") <>)
-#else
-                  Just <$> parseJSON v
-#endif
+                Just v  -> Just <$> parseJSON v
 {-# INLINE (.:!) #-}
 
 #if !MIN_VERSION_aeson(0,9,0)
